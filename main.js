@@ -1,27 +1,29 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const User = require('./models/user');
 const Note = require('./models/note');
-const { isAuthenticated, isAdminAuthenticated } = require('./auth');
+const {
+    AUTH_COOKIE_NAME,
+    isAuthenticated,
+    isAdminAuthenticated,
+    setAuthCookie
+} = require('./auth');
 
 const app = express();
-const PORT = 3000;
-const DATABASE_URL = 'mongodb://localhost:27017/auth-app';
+const PORT = process.env.PORT || 3000;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 // Configure Express before defining routes.
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Sessions remember that a user has logged in.
-app.use(session({
-    secret: 'WelcomeBuddy',
-    resave: false,
-    saveUninitialized: false
-}));
+// This makes cookies available as req.cookies in our JWT middleware.
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
     res.redirect('/login');
@@ -65,29 +67,23 @@ app.post('/login', async (req, res) => {
                         return res.redirect('/login');
                 }
 
-                // Admins use a separate login route and session. This keeps
+                // Admins use a separate login route and token. This keeps
                 // the normal user authentication flow separate from the
                 // higher-privilege administration flow.
                 if (user.role === 'admin') {
                     return res.redirect('/admin/login');
                 }
 
-                req.session.userId = user._id;
-                req.session.save((error) => {
-                        if (error) {
-                                return res.status(500).send('Unable to create session');
-                        }
-
-                        res.redirect('/dashboard');
-                });
+                // Signing in creates the JWT and sends it to the browser.
+                setAuthCookie(res, user);
+                res.redirect('/dashboard');
         } catch (error) {
                 res.status(500).send('Could not log in. Please try again.');
     }
 });
 
 // Separate admin authentication: only a database user whose role is exactly
-// "admin" can create an admin session. Being logged in as a normal user does
-// not grant permission to enter this area.
+// "admin" can receive a token for this area.
 app.get('/admin/login', (req, res) => {
     res.render('admin-login');
 });
@@ -101,30 +97,19 @@ app.post('/admin/login', async (req, res) => {
             return res.redirect('/admin/login');
         }
 
-        // Store the admin identity in a different session property.
-        // Authorization middleware will verify this identity again.
-        req.session.adminUserId = admin._id;
-        req.session.save((error) => {
-            if (error) {
-                return res.status(500).send('Unable to create admin session');
-            }
-
-            res.redirect('/admin/users');
-        });
+        // The token includes the admin identity, and middleware checks the
+        // database role again before every protected admin request.
+        setAuthCookie(res, admin);
+        res.redirect('/admin/users');
     } catch (error) {
         res.status(500).send('Could not log in as admin. Please try again.');
     }
 });
 
 app.post('/logout', (req, res) => {
-    req.session.destroy((error) => {
-        if (error) {
-            return res.status(500).send('Unable to log out');
-        }
-
-        res.clearCookie('connect.sid');
-        res.redirect('/login');
-    });
+    // JWTs are stateless, so logging out means removing the browser cookie.
+    res.clearCookie(AUTH_COOKIE_NAME);
+    res.redirect('/login');
 });
 
 // Private routes. Every route below requires a logged-in user.
@@ -144,7 +129,7 @@ app.get('/admin/users', isAdminAuthenticated, async (req, res) => {
 });
 
 app.get('/home', isAuthenticated, async (req, res) => {
-    const notes = await Note.find({ user: req.session.userId }).sort({ createdAt: -1 });
+    const notes = await Note.find({ user: req.user.userId }).sort({ createdAt: -1 });
     res.render('home', { notes });
 });
 
@@ -154,14 +139,14 @@ app.get('/create', isAuthenticated, (req, res) => {
 
 app.post('/create', isAuthenticated, async (req, res) => {
     const { title, content } = req.body;
-    const note = new Note({ title, content, user: req.session.userId });
+    const note = new Note({ title, content, user: req.user.userId });
 
     await note.save();
     res.redirect('/home');
 });
 
 app.get('/edit/:id', isAuthenticated, async (req, res) => {
-    const note = await Note.findOne({ _id: req.params.id, user: req.session.userId });
+    const note = await Note.findOne({ _id: req.params.id, user: req.user.userId });
 
     if (!note) {
         return res.status(404).send('Note not found');
@@ -173,7 +158,7 @@ app.get('/edit/:id', isAuthenticated, async (req, res) => {
 app.post('/edit/:id', isAuthenticated, async (req, res) => {
     const { title, content } = req.body;
     const note = await Note.findOneAndUpdate(
-        { _id: req.params.id, user: req.session.userId },
+        { _id: req.params.id, user: req.user.userId },
         { title, content },
         { new: true }
     );
@@ -186,13 +171,17 @@ app.post('/edit/:id', isAuthenticated, async (req, res) => {
 });
 
 app.post('/delete/:id', isAuthenticated, async (req, res) => {
-    await Note.findOneAndDelete({ _id: req.params.id, user: req.session.userId });
+    await Note.findOneAndDelete({ _id: req.params.id, user: req.user.userId });
     res.redirect('/home');
 });
 
 // Start the server only after MongoDB is connected.
 async function startServer() {
     try {
+        if (!process.env.JWT_SECRET || !DATABASE_URL) {
+            throw new Error('DATABASE_URL and JWT_SECRET must be set in .env');
+        }
+
         await mongoose.connect(DATABASE_URL);
         console.log('Connected to MongoDB');
 
