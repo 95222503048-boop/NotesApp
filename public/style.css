@@ -173,6 +173,7 @@ h1 {
     line-height: 1.6;
     overflow: hidden;
     -webkit-box-orient: vertical;
+    line-clamp: 4;
     -webkit-line-clamp: 4;
 }
 
