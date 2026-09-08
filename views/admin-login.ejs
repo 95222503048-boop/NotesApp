@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin sign in | Notehouse</title>
+    <link rel="stylesheet" href="/style1.css">
+</head>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-brand">
+            <a class="brand" href="/login"><span class="brand-mark">N</span> notehouse</a>
+            <div class="brand-copy">
+                <p class="eyebrow">Restricted area</p>
+                <h1>Manage the people behind the notes.</h1>
+                <p>Administrator access is kept separate from ordinary user accounts.</p>
+            </div>
+            <p class="brand-footer">Authorized staff only.</p>
+        </section>
+        <section class="auth-panel">
+            <div class="form-card">
+                <p class="eyebrow">Administrator</p>
+                <h2>Admin sign in</h2>
+                <p class="form-intro">Use an account that has the admin role in MongoDB.</p>
+                <form action="/admin/login" method="POST">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" autocomplete="username" required>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                    <button class="button" type="submit">Sign in as admin <span aria-hidden="true">&rarr;</span></button>
+                </form>
+                <p class="form-switch"><a href="/login">Back to user sign in</a></p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes App</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-shell">
+
+    <main class="container">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">Your personal space</p>
+                <h1>Notes App</h1>
+                <p class="intro">Capture ideas, reminders, and everything worth remembering.</p>
+            </div>
+            <div class="page-actions">
+                <a class="button button-quiet" href="/dashboard">Dashboard</a>
+                <a class="button button-primary" href="/create">+ Add note</a>
+            </div>
+        </header>
+
+        <section class="notes-grid" aria-label="Your notes">
+            <% if (notes.length === 0) { %>
+                <p class="empty-state">You have no notes yet. Create your first one.</p>
+            <% } %>
+
+            <% notes.forEach(note => { %>
+                <article class="note-card">
+                    <div class="note-card__topline">
+                        <span class="note-dot" aria-hidden="true"></span>
+                        <time><%= note.createdAt.toLocaleString() %></time>
+                    </div>
+                    <h2><%= note.title %></h2>
+                    <p class="note-content"><%= note.content %></p>
+                    <div class="note-actions">
+                        <a class="button button-quiet" href="/edit/<%= note._id %>">Edit</a>
+                        <form action="/delete/<%= note._id %>" method="POST">
+                            <button class="button button-danger" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </article>
+            <% }); %>
+        </section>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create account | Notehouse</title>
+    <link rel="stylesheet" href="/style1.css">
+</head>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-brand">
+            <a class="brand" href="/login"><span class="brand-mark">N</span> notehouse</a>
+            <div class="brand-copy">
+                <p class="eyebrow">Make room for good ideas</p>
+                <h1>Start with a clean page.</h1>
+                <p>Your next useful thought deserves a home that is easy to return to.</p>
+            </div>
+            <p class="brand-footer">Simple notes. Clear thinking.</p>
+        </section>
+        <section class="auth-panel">
+            <div class="form-card">
+                <p class="eyebrow">Get started</p>
+                <h2>Create your account</h2>
+                <p class="form-intro">Set up your private space in a few seconds.</p>
+                <form action="/register" method="POST">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" autocomplete="username" required>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="new-password" required>
+                    <button class="button" type="submit">Create account <span aria-hidden="true">&rarr;</span></button>
+                </form>
+                <p class="form-switch">Already have an account? <a href="/login">Sign in</a></p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

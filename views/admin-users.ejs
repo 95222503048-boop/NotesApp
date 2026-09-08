@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User directory | Notehouse</title>
+    <link rel="stylesheet" href="/style1.css">
+</head>
+<body class="dashboard-page">
+    <header class="dashboard-header">
+        <a class="brand" href="/admin/users"><span class="brand-mark">N</span> notehouse admin</a>
+        <div class="dashboard-actions">
+            <span class="status-pill"><span></span> <%= admin.username %></span>
+            <form action="/logout" method="POST">
+                <button class="logout-button" type="submit">Log out</button>
+            </form>
+        </div>
+    </header>
+    <main class="dashboard-main">
+        <p class="eyebrow">Authorization example</p>
+        <h1>All users</h1>
+        <p class="dashboard-intro">This protected page is visible only to accounts with the admin role.</p>
+        <section class="welcome-card">
+            <div>
+                <p class="eyebrow"><%= users.length %> accounts</p>
+                <h2>User details</h2>
+                <p>Password hashes are never displayed, even to administrators.</p>
+                <div class="user-list">
+                    <% users.forEach((user) => { %>
+                        <article class="user-row">
+                            <strong><%= user.username %></strong>
+                            <span><%= user.role %></span>
+                            <small><%= user.createdAt ? user.createdAt.toLocaleDateString() : 'Date unavailable' %></small>
+                        </article>
+                    <% }) %>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

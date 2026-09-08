@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in | Notehouse</title>
+    <link rel="stylesheet" href="/style1.css">
+</head>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-brand">
+            <a class="brand" href="/login"><span class="brand-mark">N</span> notehouse</a>
+            <div class="brand-copy">
+                <p class="eyebrow">A quiet place for busy minds</p>
+                <h1>Keep your best thoughts close.</h1>
+                <p>Save the ideas, reminders, and little sparks you do not want to lose.</p>
+            </div>
+            <p class="brand-footer">Simple notes. Clear thinking.</p>
+        </section>
+        <section class="auth-panel">
+            <div class="form-card">
+                <p class="eyebrow">Welcome back</p>
+                <h2>Sign in to notehouse</h2>
+                <p class="form-intro">Pick up right where you left off.</p>
+                <form action="/login" method="POST">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" autocomplete="username" required>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                    <button class="button" type="submit">Sign in <span aria-hidden="true">&rarr;</span></button>
+                </form>
+                <p class="form-switch">New here? <a href="/register">Create an account</a></p>
+                <p class="form-switch"><a href="/admin/login">Administrator sign in</a></p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
